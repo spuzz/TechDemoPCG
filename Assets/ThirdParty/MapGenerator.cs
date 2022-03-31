@@ -15,6 +15,8 @@ public class MapGenerator : MonoBehaviour
 	public enum DrawMode{NoiseMap, ColourMap, Mesh}
 	public DrawMode drawMode;
 	public float noiseScale;
+
+    public NoiseSettings[] noiseSettings;
 	public float heightMultiplier;
 	public AnimationCurve heightCurve;
 
@@ -34,7 +36,7 @@ public class MapGenerator : MonoBehaviour
     Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
     MapData GenerateMapData(Vector2 centre)
     {
-        float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, centre + offset);
+        float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, centre, noiseSettings);
 
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
         for (int y = 0; y < mapChunkSize; y++)

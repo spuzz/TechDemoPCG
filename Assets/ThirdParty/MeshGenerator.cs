@@ -22,7 +22,7 @@ public static class MeshGenerator
         {
             for (int i = 0; i < width; i+= meshLevelOfDetail)
             {
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + i, heightMap[i,j] * heightMultiplier, topLeftZ - j);
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + i, heightMap[i,j], topLeftZ - j);
                 meshData.uvs[vertexIndex] = new Vector2(i / (float)width, j / (float)height);
 
                 if( i< width - 1 && j < height - 1)
