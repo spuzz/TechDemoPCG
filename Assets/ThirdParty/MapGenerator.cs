@@ -20,13 +20,13 @@ public class MapGenerator : MonoBehaviour
 	public float heightMultiplier;
 	public AnimationCurve heightCurve;
 
-	public int octaves;
-	[Range(0, 1)]
-	public float persistance;
-	public float lacunarity;
+	//public int octaves;
+	//[Range(0, 1)]
+	//public float persistance;
+	//public float lacunarity;
 
 	public int seed;
-	public Vector2 offset;
+	//public Vector2 offset;
 
 	public bool autoUpdate;
 
@@ -142,19 +142,24 @@ public class MapGenerator : MonoBehaviour
             display.DrawMesh(MeshGenerator.GenerateMesh(mapData.heightMap, heightMultiplier, heightCurve, editorLOD), TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize));
         }
 
+        FindObjectOfType<MapGenerator>().RegenerateWorld();
+    }
+
+    public void RegenerateWorld()
+    {
         FindObjectOfType<InfiniteTerrain>().Reset();
     }
 
     void OnValidate()
 	{
-		if (lacunarity < 1)
-		{
-			lacunarity = 1;
-		}
-		if (octaves < 0)
-		{
-			octaves = 0;
-		}
+		//if (lacunarity < 1)
+		//{
+		//	lacunarity = 1;
+		//}
+		//if (octaves < 0)
+		//{
+		//	octaves = 0;
+		//}
 	}
 
     //Generic for both map and mesh data

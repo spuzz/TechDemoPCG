@@ -4,7 +4,6 @@ using UnityEngine;
 
 public static class NoiseGenerator
 {
-	// Start is called before the first frame update
 	public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, Vector2 mapOffset, NoiseSettings[] noiseSettings)
 	{
 		float[,] noiseMap = new float[mapWidth, mapHeight];
@@ -22,54 +21,16 @@ public static class NoiseGenerator
                 float offsetX = prng.Next(-100000, 100000) + origOffset.x;
                 float offsetY = prng.Next(-100000, 100000) - origOffset.y;
                 octaveOffsets[i] = new Vector2(offsetX, offsetY);
-
-                //maxPossibleHeight += amplitude;
-                //maxPossibleHeight *= persistance;
             }
 
             for (int y = 0; y < mapSettings.mapHeight; y++)
             {
                 for (int x = 0; x < mapSettings.mapWidth; x++)
                 {
-                    noiseMap[x, y] = FBM(x, y, mapSettings, noiseSetting, octaveOffsets, Vector2.zero);
+                    noiseMap[x, y] += FBM(x, y, mapSettings, noiseSetting, octaveOffsets, Vector2.zero);
                 }
             }
         }
-
-
-
-
-
-
-        //for (int y = 0; y < mapHeight; y++)
-        //{
-        //	for (int x = 0; x < mapWidth; x++)
-        //          {
-
-        //		Vector2 warp = new Vector2(0.0f, 0.0f);
-        //		float firstHeight = FBM(scale, octaves, persistance, lacunarity, octaveOffsets, halfWidth, halfHeight, y, x, warp);
-        //		warp = new Vector2(5.2f, 1.3f);
-        //		float secondHeight = FBM(scale, octaves, persistance, lacunarity, octaveOffsets, halfWidth, halfHeight, y, x, warp);
-        //		warp = new Vector2(4.0f * firstHeight, 4.0f * secondHeight);
-        //		//warp = new Vector2(0.0f, 0.0f);
-        //		float noiseHeight = FBM(scale, octaves, persistance, lacunarity, octaveOffsets, halfWidth, halfHeight, y, x, warp);
-        //              noiseMap[x, y] = noiseHeight;
-        //          }
-        //}
-
-        //for (int y = 0; y < mapHeight; y++)
-        //{
-        //	for (int x = 0; x < mapWidth; x++)
-        //	{
-
-        //		//noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
-        //		float normalizedHeight = noiseMap[x, y]  /  maxPossibleHeight;
-        //              //noiseMap[x, y] = Mathf.Clamp(normalizedHeight, -1, int.MaxValue);
-
-        //              //noiseMap[x, y] = normalizedHeight;
-        //          }
-
-        //}
 
         return noiseMap;
 	}
@@ -80,25 +41,24 @@ public static class NoiseGenerator
 		float frequency = 1;
 		float noiseHeight = 0;
 
-
-		//float xf = ((x - mapSettings.halfWidth)) / mapSettings.scale;
-		//float yf = ((y - mapSettings.halfHeight)) / mapSettings.scale;
-
-		//amplitude = Mathf.PerlinNoise(xf, yf) * 3;
-
 		for (int i = 0; i < noiseSettings.octaves; i++)
 		{
 			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x) + warp[0]) / mapSettings.scale * frequency;
 			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y) + warp[1]) / mapSettings.scale * frequency;
-			//float perlinValue = (Mathf.Abs(0.5f - Mathf.PerlinNoise(sampleX, sampleY)));
-			//float perlinValue = 0.5f - (Mathf.Abs(0.5f - Mathf.PerlinNoise(sampleX, sampleY)));
-			float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
-			noiseHeight += perlinValue * amplitude;
+            float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+            float ridgedValue = 1.0f - Mathf.Abs(perlinValue);
+            float billowvalue = perlinValue * perlinValue;
+
+            float noiseValue = Mathf.Lerp(perlinValue, billowvalue, Mathf.Max(0.0f, noiseSettings.sharpness));
+
+            noiseValue += Mathf.Lerp(perlinValue, ridgedValue, Mathf.Abs(Mathf.Min(0.0f, noiseSettings.sharpness)));
+            noiseHeight += noiseValue * amplitude;
 
 			amplitude *= noiseSettings.persistance;
 			frequency *= noiseSettings.lacunarity;
 		}
 
+        noiseHeight = Mathf.Max(0, noiseHeight - noiseSettings.minValue);
 		return noiseHeight * noiseSettings.strength;
 	}
 

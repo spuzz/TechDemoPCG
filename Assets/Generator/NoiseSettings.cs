@@ -15,6 +15,9 @@ public class NoiseSettings
     public int octaves = 5;
     [Range(0, 1)]
     public float persistance = 0.5f;
+    [Range(0, 4)]
     public float lacunarity = 2f;
+    [Range(0, 1)]
+    public float sharpness;
 
 }
