@@ -9,6 +9,8 @@ public class NoiseSettings
     public bool enabled = true;
     public float strength = 1f;
     public float minValue = 0f;
+    [Range(10, 200)]
+    public float scale = 50;
     //public AnimationCurve heightCurve;
 
     public Vector2 offset;
@@ -17,7 +19,7 @@ public class NoiseSettings
     public float persistance = 0.5f;
     [Range(0, 4)]
     public float lacunarity = 2f;
-    [Range(0, 1)]
+    [Range(-1, 1)]
     public float sharpness;
 
 }

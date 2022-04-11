@@ -10,9 +10,12 @@ public static class NoiseGenerator
 
 		MapSettings mapSettings = new MapSettings(mapWidth, mapHeight, seed, scale, mapOffset);
 
+		int count = 0;
 		foreach (NoiseSettings noiseSetting in noiseSettings)
         {
-            System.Random prng = new System.Random(seed);
+			count++;
+
+			System.Random prng = new System.Random(seed);
             Vector2[] octaveOffsets = new Vector2[noiseSetting.octaves];
 
             Vector2 origOffset = new Vector2(noiseSetting.offset.x + mapSettings.mapOffset.x, noiseSetting.offset.y + mapSettings.mapOffset.y);   
@@ -27,7 +30,16 @@ public static class NoiseGenerator
             {
                 for (int x = 0; x < mapSettings.mapWidth; x++)
                 {
-                    noiseMap[x, y] += FBM(x, y, mapSettings, noiseSetting, octaveOffsets, Vector2.zero);
+					float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[count].x)) / 20;
+					float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[count].y)) / 20;
+					float layerImpact = Mathf.PerlinNoise(sampleX, sampleY);
+					Vector2 warp = new Vector2(0.0f, 0.0f);
+					float firstHeight = (FBM(x, y, mapSettings, noiseSetting, octaveOffsets, warp));
+					warp = new Vector2(5.2f, 1.3f);
+					float secondHeight = (FBM(x, y, mapSettings, noiseSetting, octaveOffsets, warp));
+					warp = new Vector2(2.0f * firstHeight, 2.0f * secondHeight);
+					//warp = new Vector2(0.0f, 0.0f);
+					noiseMap[x, y] += (FBM(x + warp.x, y + warp.y, mapSettings, noiseSetting, octaveOffsets, warp) * layerImpact);
                 }
             }
         }
@@ -35,7 +47,7 @@ public static class NoiseGenerator
         return noiseMap;
 	}
 
-	private static float FBM(int x, int y, MapSettings mapSettings, NoiseSettings noiseSettings, Vector2[] octaveOffsets, Vector2 warp)
+	private static float FBM(float x, float y, MapSettings mapSettings, NoiseSettings noiseSettings, Vector2[] octaveOffsets, Vector2 warp)
 	{
 		float amplitude = 1;
 		float frequency = 1;
@@ -43,8 +55,8 @@ public static class NoiseGenerator
 
 		for (int i = 0; i < noiseSettings.octaves; i++)
 		{
-			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x) + warp[0]) / mapSettings.scale * frequency;
-			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y) + warp[1]) / mapSettings.scale * frequency;
+			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x)) / noiseSettings.scale * frequency;
+			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y)) / noiseSettings.scale * frequency;
             float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
             float ridgedValue = 1.0f - Mathf.Abs(perlinValue);
             float billowvalue = perlinValue * perlinValue;
