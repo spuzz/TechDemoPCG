@@ -142,7 +142,7 @@ public class MapGenerator : MonoBehaviour
             display.DrawMesh(MeshGenerator.GenerateMesh(mapData.heightMap, heightMultiplier, heightCurve, editorLOD), TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize));
         }
 
-        FindObjectOfType<MapGenerator>().RegenerateWorld();
+        //FindObjectOfType<MapGenerator>().RegenerateWorld();
     }
 
     public void RegenerateWorld()

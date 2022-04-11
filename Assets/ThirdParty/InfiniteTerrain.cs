@@ -141,9 +141,13 @@ public class InfiniteTerrain : MonoBehaviour
             this.mapData = mapData;
             mapDataReceived = true;
 
-            Texture2D texture = TextureGenerator.TextureFromColourMap(mapData.colourMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
-            meshRenderer.material.mainTexture = texture;
-            UpdateTerrainChunk();
+            if(meshRenderer != null)
+            {
+                Texture2D texture = TextureGenerator.TextureFromColourMap(mapData.colourMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
+                meshRenderer.material.mainTexture = texture;
+                UpdateTerrainChunk();
+            }
+
         }
 
         public void UpdateTerrainChunk()
