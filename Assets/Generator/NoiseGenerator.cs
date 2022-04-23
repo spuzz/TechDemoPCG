@@ -33,13 +33,11 @@ public static class NoiseGenerator
 					float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[count].x)) / 20;
 					float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[count].y)) / 20;
 					float layerImpact = Mathf.PerlinNoise(sampleX, sampleY);
-					Vector2 warp = new Vector2(0.0f, 0.0f);
-					float firstHeight = (FBM(x, y, mapSettings, noiseSetting, octaveOffsets, warp));
-					warp = new Vector2(5.2f, 1.3f);
-					float secondHeight = (FBM(x, y, mapSettings, noiseSetting, octaveOffsets, warp));
-					warp = new Vector2(2.0f * firstHeight, 2.0f * secondHeight);
+					float firstHeight = (FBM(x + noiseSetting.warp1.x, y + noiseSetting.warp1.y, mapSettings, noiseSetting, octaveOffsets));
+					float secondHeight = (FBM( x + noiseSetting.warp2.x, y + noiseSetting.warp2.y, mapSettings, noiseSetting, octaveOffsets));
+					Vector2 warp = new Vector2(noiseSetting.warpScale * firstHeight, noiseSetting.warpScale * secondHeight);
 					//warp = new Vector2(0.0f, 0.0f);
-					noiseMap[x, y] += (FBM(x + warp.x, y + warp.y, mapSettings, noiseSetting, octaveOffsets, warp) * layerImpact);
+					noiseMap[x, y] += (FBM(x + warp.x, y + warp.y, mapSettings, noiseSetting, octaveOffsets) * layerImpact);
                 }
             }
         }
@@ -47,7 +45,7 @@ public static class NoiseGenerator
         return noiseMap;
 	}
 
-	private static float FBM(float x, float y, MapSettings mapSettings, NoiseSettings noiseSettings, Vector2[] octaveOffsets, Vector2 warp)
+	private static float FBM(float x, float y, MapSettings mapSettings, NoiseSettings noiseSettings, Vector2[] octaveOffsets)
 	{
 		float amplitude = 1;
 		float frequency = 1;
@@ -55,8 +53,8 @@ public static class NoiseGenerator
 
 		for (int i = 0; i < noiseSettings.octaves; i++)
 		{
-			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x)) / noiseSettings.scale * frequency;
-			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y)) / noiseSettings.scale * frequency;
+			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x)) / (noiseSettings.scale + mapSettings.scale) * frequency;
+			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y)) / (noiseSettings.scale + mapSettings.scale) * frequency;
             float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
             float ridgedValue = 1.0f - Mathf.Abs(perlinValue);
             float billowvalue = perlinValue * perlinValue;
@@ -69,9 +67,9 @@ public static class NoiseGenerator
 			amplitude *= noiseSettings.persistance;
 			frequency *= noiseSettings.lacunarity;
 		}
-
-        noiseHeight = Mathf.Max(0, noiseHeight - noiseSettings.minValue);
-		return noiseHeight * noiseSettings.strength;
+		noiseHeight *= noiseSettings.strength;
+	    noiseHeight = Mathf.Max(0, noiseHeight - noiseSettings.minValue);
+		return noiseHeight;
 	}
 
 

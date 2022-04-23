@@ -22,4 +22,8 @@ public class NoiseSettings
     [Range(-1, 1)]
     public float sharpness;
 
+    public Vector2 warp1;
+    public Vector2 warp2;
+    [Range(0, 5)]
+    public float warpScale;
 }
