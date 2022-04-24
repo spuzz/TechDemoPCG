@@ -24,7 +24,7 @@ public class InfiniteTerrain : MonoBehaviour
     public Dictionary<Vector2, TerrainChunk> terrainChunkDict = new Dictionary<Vector2, TerrainChunk>();
     static List<TerrainChunk> chunksLastUpdate = new List<TerrainChunk>();
 
-    public static List<Vector3> peaks = new List<Vector3>();
+    public static List<GameObject> peaks = new List<GameObject>();
     private void Start()
     {
         maxViewDist = LODLevels[LODLevels.Length - 1].visDistThreshold;
@@ -148,7 +148,9 @@ public class InfiniteTerrain : MonoBehaviour
             var coord = CoordinatesOf(max);
             if(coord.Item1 != -1)
             {
-                peaks.Add(new Vector3(meshObject.transform.position.x + (coord.Item1 - 120), max, meshObject.transform.position.z + (120 - coord.Item2)));
+                GameObject gameObj = new GameObject("Peak");
+                gameObj.transform.position = new Vector3(meshObject.transform.position.x + (coord.Item1 - 120), max, meshObject.transform.position.z + (120 - coord.Item2));
+                peaks.Add(gameObj);
             }
 
             mapDataReceived = true;

@@ -6,6 +6,7 @@ namespace UnityMovementAI
     public class Spawner : MonoBehaviour
     {
         public GameObject obj;
+        public GameObject dangerousBird;
         public Vector2 objectSizeRange = new Vector2(1, 2);
 
         public int numberOfObjects = 10;
@@ -74,7 +75,8 @@ namespace UnityMovementAI
             if (CanPlaceObject(halfSize, pos))
             {
                 Transform t = Instantiate(obj, pos, Quaternion.identity).transform as Transform;
-
+                t.gameObject.GetComponent<FlockingBird>().m_Behaviour = Random.Range(1, 3);
+                t.gameObject.GetComponent<FlockingBird>().dangerousBird = dangerousBird;
                 if (isObj3D)
                 {
                     t.localScale = new Vector3(size, obj.transform.localScale.y, size);

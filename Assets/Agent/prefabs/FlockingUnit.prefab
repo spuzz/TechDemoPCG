@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 7368550356984272058}
   - component: {fileID: 7368550356984378228}
   - component: {fileID: 7368550356984389882}
+  - component: {fileID: 4449607721011854614}
   m_Layer: 2
   m_Name: FlockingUnit
   m_TagString: Untagged
@@ -211,7 +212,8 @@ MonoBehaviour:
   cohesionWeight: 4
   separationWeight: 2
   velocityMatchWeight: 1
-  target: {fileID: 0}
+  m_Behaviour: 2
+  dangerousBird: {fileID: 0}
 --- !u!114 &7368550356984372512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,3 +291,19 @@ MonoBehaviour:
   facingCosine: 90
   timeToTarget: 0.1
   maxAcceleration: 4
+--- !u!114 &4449607721011854614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7368550356974771370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cdf64bcab4d4d8468c92f1bc4b23f7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panicDist: 15
+  decelerateOnStop: 0
+  maxAcceleration: 10
+  timeToTarget: 1

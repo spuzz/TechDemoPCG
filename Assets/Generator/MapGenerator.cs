@@ -4,37 +4,53 @@ using UnityEngine;
 using System;
 using System.Threading;
 
-
+// Map generator that will create map chunks using FBM (perlin noise) with multiple layers
+// Threading and creation of mapchunks uses code from Sebastian Lague youtube series https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3
 public class MapGenerator : MonoBehaviour
 {
 	// 241 is a good choice as it is easily divisible by several factors making LODS easier
 	public const int mapChunkSize = 241;
 	
+    // Adjust level of detail for Editor Mesh
 	[Range(0,6)]
 	public int editorLOD;
+
+    // Unused in variables in current implementation
 	public enum DrawMode{NoiseMap, ColourMap, Mesh}
 	DrawMode drawMode = DrawMode.Mesh;
+    float heightMultiplier;
+    AnimationCurve heightCurve;
+
+
+    // Values that impact all layers
     [Range(0, 100)]
     public float noiseScale;
     public int seed;
     public float minValue;
     public NoiseSettings[] noiseSettings;
-	float heightMultiplier;
-	AnimationCurve heightCurve;
 
+    public GameObject waterPlane;
 	
-
 	public bool autoUpdate;
 
 	public TerrainType[] terrainTypes;
 
     Queue<MapThreadInfo<MapData>> mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>>();
     Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
+
+    private void Start()
+    {
+        // Activate plane that acts as water
+        waterPlane.gameObject.SetActive(true);
+    }
+
     MapData GenerateMapData(Vector2 centre)
     {
         float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, minValue, centre, noiseSettings);
 
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
+
+        // Create colour map using preset terrain levels 
         for (int y = 0; y < mapChunkSize; y++)
         {
             for (int x = 0; x < mapChunkSize; x++)

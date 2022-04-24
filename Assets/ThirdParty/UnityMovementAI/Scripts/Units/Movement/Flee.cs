@@ -28,24 +28,26 @@ namespace UnityMovementAI
             /* If the target is far way then don't flee */
             if (acceleration.magnitude > panicDist)
             {
-                /* Slow down if we should decelerate on stop */
-                if (decelerateOnStop && rb.Velocity.magnitude > 0.001f)
-                {
-                    /* Decelerate to zero velocity in time to target amount of time */
-                    acceleration = -rb.Velocity / timeToTarget;
+                //rb.Velocity = Vector3.zero;
+                return Vector3.zero;
+                ///* Slow down if we should decelerate on stop */
+                //if (decelerateOnStop && rb.Velocity.magnitude > 0.001f)
+                //{
+                //    /* Decelerate to zero velocity in time to target amount of time */
+                //    acceleration = -rb.Velocity / timeToTarget;
 
-                    if (acceleration.magnitude > maxAcceleration)
-                    {
-                        acceleration = GiveMaxAccel(acceleration);
-                    }
+                //    if (acceleration.magnitude > maxAcceleration)
+                //    {
+                //        acceleration = GiveMaxAccel(acceleration);
+                //    }
 
-                    return acceleration;
-                }
-                else
-                {
-                    rb.Velocity = Vector3.zero;
-                    return Vector3.zero;
-                }
+                //    return acceleration;
+                //}
+                //else
+                //{
+                //    rb.Velocity = Vector3.zero;
+                //    return Vector3.zero;
+                //}
             }
 
             return GiveMaxAccel(acceleration);

@@ -11,13 +11,17 @@ public static class NoiseGenerator
 		MapSettings mapSettings = new MapSettings(mapWidth, mapHeight, seed, scale, minValue, mapOffset);
 
 		int count = 0;
+
+		// Calculate final height from each noise level
 		foreach (NoiseSettings noiseSetting in noiseSettings)
         {
 			if(noiseSetting.enabled == true)
             {
 				count++;
 
+				// randomise noise location based on input seed
 				System.Random prng = new System.Random(seed);
+
 				Vector2[] octaveOffsets = new Vector2[noiseSetting.octaves];
 
 				Vector2 origOffset = new Vector2(noiseSetting.offset.x + mapSettings.mapOffset.x, noiseSetting.offset.y + mapSettings.mapOffset.y);
@@ -28,17 +32,19 @@ public static class NoiseGenerator
 					octaveOffsets[i] = new Vector2(offsetX, offsetY);
 				}
 
+				// Calculate noise for each coord in map
 				for (int y = 0; y < mapSettings.mapHeight; y++)
 				{
 					for (int x = 0; x < mapSettings.mapWidth; x++)
 					{
-						float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[count].x)) / 20;
-						float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[count].y)) / 20;
-						float layerImpact = Mathf.PerlinNoise(sampleX, sampleY);
+
+						// Warp the noise height by modifying the coordinates by feeding in 2 other layers of perlin noise
 						float firstHeight = (FBM(x + noiseSetting.warp1.x, y + noiseSetting.warp1.y, mapSettings, noiseSetting, octaveOffsets));
 						float secondHeight = (FBM(x + noiseSetting.warp2.x, y + noiseSetting.warp2.y, mapSettings, noiseSetting, octaveOffsets));
 						Vector2 warp = new Vector2(noiseSetting.warpScale * firstHeight, noiseSetting.warpScale * secondHeight);
-						noiseMap[x, y] += (FBM(x + warp.x, y + warp.y, mapSettings, noiseSetting, octaveOffsets) * layerImpact);
+						
+						// Calculate height using multi step perlin noise (fractal brownian motion)
+						noiseMap[x, y] += (FBM(x + warp.x, y + warp.y, mapSettings, noiseSetting, octaveOffsets));
 					}
 				}
 			}
@@ -48,29 +54,45 @@ public static class NoiseGenerator
         return noiseMap;
 	}
 
+	// Fractal Brownian Motion 
 	private static float FBM(float x, float y, MapSettings mapSettings, NoiseSettings noiseSettings, Vector2[] octaveOffsets)
 	{
+		// Impact of each octave
 		float amplitude = 1;
+
+		// level of detail of each octave
 		float frequency = 1;
+
 		float noiseHeight = 0;
 
+		// calculate noise for each octave 
 		for (int i = 0; i < noiseSettings.octaves; i++)
 		{
+			// Calculate perlin noise input using offset map location and divided by our map scale factor to determine the range of perlin noise. 
 			float sampleX = ((x - mapSettings.halfWidth + octaveOffsets[i].x)) / (noiseSettings.scale + mapSettings.scale) * frequency;
 			float sampleY = ((y - mapSettings.halfHeight + octaveOffsets[i].y)) / (noiseSettings.scale + mapSettings.scale) * frequency;
+
+			// Perlin noise output is modified to range of (-1, 1)
             float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+
+			// Calculate ridge and billow noise which modify the output from the original perlin noise
             float ridgedValue = 1.0f - Mathf.Abs(perlinValue);
             float billowvalue = perlinValue * perlinValue;
-
             float noiseValue = Mathf.Lerp(perlinValue, billowvalue, Mathf.Max(0.0f, noiseSettings.sharpness));
-
             noiseValue += Mathf.Lerp(perlinValue, ridgedValue, Mathf.Abs(Mathf.Min(0.0f, noiseSettings.sharpness)));
+
+			
             noiseHeight += noiseValue * amplitude;
 
+			/// update the amplitude and frequency for the next octave
 			amplitude *= noiseSettings.persistance;
 			frequency *= noiseSettings.lacunarity;
 		}
+
+		// Multiple the noise output by this noise layer strength to give some layer higher impact
 		noiseHeight *= noiseSettings.strength;
+
+		// Apply a minimum value that will sink anything below that height into the ocean level
 	    noiseHeight = Mathf.Max(0, noiseHeight - (noiseSettings.minValue + mapSettings.minValue));
 		return noiseHeight;
 	}
