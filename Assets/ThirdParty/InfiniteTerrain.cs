@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class InfiniteTerrain : MonoBehaviour
@@ -21,6 +23,8 @@ public class InfiniteTerrain : MonoBehaviour
 
     public Dictionary<Vector2, TerrainChunk> terrainChunkDict = new Dictionary<Vector2, TerrainChunk>();
     static List<TerrainChunk> chunksLastUpdate = new List<TerrainChunk>();
+
+    public static List<Vector3> peaks = new List<Vector3>();
     private void Start()
     {
         maxViewDist = LODLevels[LODLevels.Length - 1].visDistThreshold;
@@ -92,6 +96,7 @@ public class InfiniteTerrain : MonoBehaviour
         Vector2 pos;
         GameObject meshObject;
         Bounds bounds;
+        int size;
 
         MeshRenderer meshRenderer;
         MeshFilter meshFilter;
@@ -103,11 +108,10 @@ public class InfiniteTerrain : MonoBehaviour
         MapData mapData;
         bool mapDataReceived;
 
-       
-
         public TerrainChunk(Vector2 coord, int size, Transform parent, Material material, LODInfo[] lodLevels)
         {
             this.lodLevels = lodLevels;
+            this.size = size;
             pos = coord * size;
             bounds = new Bounds(pos, Vector2.one * size);
             Vector3 posV3 = new Vector3(pos.x, 0, pos.y);
@@ -139,9 +143,17 @@ public class InfiniteTerrain : MonoBehaviour
         void OnMapDataReceived(MapData mapData)
         {
             this.mapData = mapData;
+
+            float max = mapData.heightMap.Cast<float>().Max();    //or Min
+            var coord = CoordinatesOf(max);
+            if(coord.Item1 != -1)
+            {
+                peaks.Add(new Vector3(meshObject.transform.position.x + (coord.Item1 - 120), max, meshObject.transform.position.z + (120 - coord.Item2)));
+            }
+
             mapDataReceived = true;
 
-            if(meshRenderer != null)
+            if (meshRenderer != null)
             {
                 Texture2D texture = TextureGenerator.TextureFromColourMap(mapData.colourMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
                 meshRenderer.material.mainTexture = texture;
@@ -202,6 +214,23 @@ public class InfiniteTerrain : MonoBehaviour
         public bool IsVisible()
         {
             return meshObject.activeSelf;
+        }
+
+        public Tuple<int, int> CoordinatesOf(float max)
+        {
+            int w = mapData.heightMap.GetLength(0); // width
+            int h = mapData.heightMap.GetLength(1); // height
+
+            for (int x = 0; x < w; ++x)
+            {
+                for (int y = 0; y < h; ++y)
+                {
+                    if (mapData.heightMap[x, y].Equals(max))
+                        return Tuple.Create(x, y);
+                }
+            }
+
+            return Tuple.Create(-1, -1);
         }
     }
 

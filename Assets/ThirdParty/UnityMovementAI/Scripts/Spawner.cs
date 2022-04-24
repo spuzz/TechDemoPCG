@@ -5,7 +5,7 @@ namespace UnityMovementAI
 {
     public class Spawner : MonoBehaviour
     {
-        public Transform obj;
+        public GameObject obj;
         public Vector2 objectSizeRange = new Vector2(1, 2);
 
         public int numberOfObjects = 10;
@@ -59,28 +59,29 @@ namespace UnityMovementAI
             float halfSize = size / 2f;
 
             Vector3 pos = new Vector3();
-            pos.x = bottomLeft.x + Random.Range(boundaryPadding + halfSize, widthHeight.x - boundaryPadding - halfSize);
+            pos.x = transform.position.x + Random.Range(boundaryPadding + halfSize, widthHeight.x - boundaryPadding - halfSize);
 
             if (isObj3D)
             {
-                pos.z = bottomLeft.z + Random.Range(boundaryPadding + halfSize, widthHeight.z - boundaryPadding - halfSize);
+                pos.z = transform.position.z + Random.Range(boundaryPadding + halfSize, widthHeight.z - boundaryPadding - halfSize);
+                pos.y = transform.position.y + Random.Range(boundaryPadding + halfSize, widthHeight.y - boundaryPadding - halfSize);
             }
             else
             {
-                pos.y = bottomLeft.y + Random.Range(boundaryPadding + halfSize, widthHeight.y - boundaryPadding - halfSize);
+                pos.y = transform.position.y + Random.Range(boundaryPadding + halfSize, widthHeight.y - boundaryPadding - halfSize);
             }
 
             if (CanPlaceObject(halfSize, pos))
             {
-                Transform t = Instantiate(obj, pos, Quaternion.identity) as Transform;
+                Transform t = Instantiate(obj, pos, Quaternion.identity).transform as Transform;
 
                 if (isObj3D)
                 {
-                    t.localScale = new Vector3(size, obj.localScale.y, size);
+                    t.localScale = new Vector3(size, obj.transform.localScale.y, size);
                 }
                 else
                 {
-                    t.localScale = new Vector3(size, size, obj.localScale.z);
+                    t.localScale = new Vector3(size, size, obj.transform.localScale.z);
                 }
 
                 if (randomizeOrientation)

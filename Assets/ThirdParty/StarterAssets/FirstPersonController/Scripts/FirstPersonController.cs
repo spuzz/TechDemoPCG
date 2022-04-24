@@ -97,6 +97,9 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			var pos = transform.position;
+			pos.y = 60;
+			transform.position = pos;
 		}
 
 		private void LateUpdate()

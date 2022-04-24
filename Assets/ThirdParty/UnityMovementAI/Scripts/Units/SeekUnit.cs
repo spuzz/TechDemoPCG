@@ -11,14 +11,18 @@ namespace UnityMovementAI
         void Start()
         {
             steeringBasics = GetComponent<SteeringBasics>();
+            
         }
 
         void FixedUpdate()
         {
-            Vector3 accel = steeringBasics.Seek(target.position);
+            if (Vector3.Distance(transform.position, target.position) > 10)
+            {
+                Vector3 accel = steeringBasics.Seek(target.position);
 
-            steeringBasics.Steer(accel);
-            steeringBasics.LookWhereYoureGoing();
+                steeringBasics.Steer(accel);
+                steeringBasics.LookWhereYoureGoing();
+            }
         }
     }
 }

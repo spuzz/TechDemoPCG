@@ -36,7 +36,7 @@ namespace UnityMovementAI
             /* Create a vector to a target position on the wander circle */
             if (rb.is3D)
             {
-                wanderTarget = new Vector3(wanderRadius * Mathf.Cos(theta), 0f, wanderRadius * Mathf.Sin(theta));
+                wanderTarget = new Vector3(wanderRadius * Mathf.Cos(theta), wanderRadius * Mathf.Cos(theta), wanderRadius * Mathf.Sin(theta));
             }
             else
             {
